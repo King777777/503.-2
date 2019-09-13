@@ -1,0 +1,54 @@
+//给定一个循环数组（最后一个元素的下一个元素是数组的第一个元素），输出每个元素的下一个更大元素
+//数字 x 的下一个更大的元素是按数组遍历顺序，这个数字之后的第一个比它更大的数，
+//这意味着你应该循环地搜索它的下一个更大的数。如果不存在，则输出 -1。
+//
+//示例 1:
+//
+//输入: [1,2,1]
+//输出: [2,-1,2]
+//解释: 第一个 1 的下一个更大的数是 2；
+//数字 2 找不到下一个更大的数； 
+//第二个 1 的下一个最大的数需要循环搜索，结果也是 2。
+//
+//思路，我们维护一个单调递减的栈，当遇到比栈顶元素大的数字，我么就将其弹出栈，并将比他大的第一个数写入res数组
+//所以栈里放的应该是下标，因为数组是循环的，所以我们最多遍历两边数组就可以得到所有数的下一个更大元素
+//代码如下
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        if(nums.empty()) return {};
+        vector<int> res(nums.size(),-1);
+        stack<int> st;
+        int cnt = 0; //计数用的，我们最多遍历两遍数组，当cnt==2 * size时就break 
+        for(int i = 0; i < nums.size(); i = (++i) % nums.size(), cnt++)
+        {
+            while(!st.empty() && nums[st.top()] < nums[i])  //栈不为空且当前数字大于栈顶 
+            {
+                res[st.top()] = nums[i]; //对应位置写入num[i] 
+                st.pop(); //出栈 
+            }
+            st.push(i);   //i下标入栈 
+           if(cnt == 2 * nums.size()) break; //最多遍历2次就可以得到所有结果 
+        } 
+        return res;
+    }
+}; 
+//在看看大神写的
+//比我街简洁的原因在于他没有多余的变量，循环次数限制为2 * n（即i从0到2n -1）,然后i对n取余得到数组里面的元素
+//这个取余做的比我好，我也想到i超过n之后要取余，但是我写的还是复杂了点，多了一个cnt来表示遍历两遍 
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> res(n, -1);
+        stack<int> st;
+        for (int i = 0; i < 2 * n; ++i) {
+            int num = nums[i % n];  //确保num在【0，n-1】内 
+            while (!st.empty() && nums[st.top()] < num) {
+                res[st.top()] = num; st.pop();
+            }
+            if (i < n) st.push(i); //如果i是个合理的数字就 入栈 
+        }
+        return res;
+    }
+}; 
